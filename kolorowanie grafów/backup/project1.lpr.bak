@@ -1,0 +1,53 @@
+program project1;
+var bitmapa1,bitmapa2:Tbitmap;
+    plik:TextFile;
+    x,y,i,licz:integer;
+    bk:byte;
+    S:string;
+    prostokat:TRect;
+    kolory:array [1..6] of byte;
+begin
+     AssignFile(plik,'d.txt');
+     Reset(plik);
+     prostokat:=Rect(17,23,14,14);
+     While not Eof(plik) do
+     begin
+       Readln(plik,S);
+       for i:=1 to 6 do
+       begin
+         kolory[i]:=Ord(S[i])-48;
+       end;
+       bitmapa1.Create;
+       bitmapa1.LoadFromFile('pierwowzor.bmp');
+       bitmapa2.Assign(bitmapa1);
+       for i:=1 to 6 do
+       begin
+         case kolory[i] of
+         0:bitmapa2.Canvas.Brush.Color:=clWhite;
+         1:bitmapa2.Canvas.Brush.Color:=clRed;
+         2:bitmapa2.Canvas.Brush.Color:=clBlue;
+         3:bitmapa2.Canvas.Brush.Color:=clGreen;
+         end;
+         case i of
+         begin
+         1:x:=17;
+           y:=23;
+         2:x:=196;
+           y:=20;
+         3:x:=106;
+           y:=20;
+         4:x:=105;
+           y:=111;
+         5:x:=18;
+           y:=111;
+         6:x:=198;
+           y:=111;
+         end;
+         bitmapa2.canvas.draw(0,0,prostakat);
+       end;
+       licz:=licz+1;
+       bitmapa2.Savetofile('Graf'+inttostr(licz));
+
+     end;
+end.
+

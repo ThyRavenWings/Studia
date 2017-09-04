@@ -1,0 +1,314 @@
+program project1;
+uses crt;
+const Mmax=39;
+      Nmax=30;
+
+type macierz = array [1..Mmax,1..Nmax] of char;
+
+function czy_liczba(znak:char):boolean;
+
+begin
+  if (znak>='0') and (znak<='9') then
+     czy_liczba:=true
+  else
+    czy_liczba:=false;
+end;
+
+procedure Wylosuj(var A:macierz;ik:integer;iw:integer);
+var i,j: integer;
+begin
+  randomize;
+  for i:=1 to iw do
+    for j:=1 to ik do
+      begin
+        A[i,j]:= char(random(94)+33);
+      end;
+
+end;
+
+procedure Wyswietl(var A:macierz;ik:integer;iw:integer);
+var i,j:integer;
+begin
+  for i:=1 to iw do
+    begin
+
+    for j:=1 to ik do
+      begin
+        Write(' ',A[i,j]);
+      end;
+      writeln;
+    end;
+end;
+
+procedure ZapiszDoPliku(var A:macierz;ik:integer;iw:integer;nazwa:string);
+
+var x:Text;
+    i,j:integer;
+begin
+
+  if((nazwa[length(nazwa)]<>'t') or (nazwa[length(nazwa)-1]<>'x')
+  or (nazwa[length(nazwa)-2]<>'t') or (nazwa[length(nazwa)-3]<>'.') )then
+    nazwa:=nazwa+'.txt';
+  assignFile(x,nazwa);
+  rewrite(x);
+  for i:=1 to iw do
+    begin
+
+    for j:=1 to ik do
+      begin
+        Write(x,' ',A[i,j]);
+      end;
+      writeln(x);
+    end;
+  closeFile(x);
+end;
+
+procedure OdczytajZPliku(var A:macierz;var ik:integer;var iw:integer;nazwa:string);
+var i,j,k:integer;
+    x:Text;
+    s:string;
+begin
+  if((nazwa[length(nazwa)]<>'t') or (nazwa[length(nazwa)-1]<>'x')
+  or (nazwa[length(nazwa)-2]<>'t') or (nazwa[length(nazwa)-3]<>'.') )then
+    nazwa:=nazwa+'.txt';
+  i:=1;j:=1;
+  assignFile(x,nazwa);
+  reset(x);
+  while not eof(x) do
+  begin
+    readln(x,s);
+    j:=1;
+    for k:=1 to length(s) do
+    begin
+      if (s[k]>' ')then
+      begin
+        a[i,j]:=s[k];
+        j:=j+1;
+      end;
+    end;
+    i:=i+1;
+  end;
+  ik:=j-1;
+  iw:=i-1;
+  closeFile(x);
+end;
+
+function Sumuj(var A:macierz;ik:integer;iw:integer):integer;
+var i,j,licz:integer;
+begin
+  licz:=0;
+  for i:=1 to iw do
+    for j:=1 to ik do
+    begin
+      if czy_liczba(A[i,j]) then
+        licz:=licz+(Ord(A[i,j])-Ord('0'));
+    end;
+  Sumuj:=licz;
+end;
+
+function slowo_na_przekatnej(var A:macierz;ik:integer;iw:integer):string;
+
+var i:integer;
+    s:string;
+begin
+  if ik<>iw then
+  begin
+    slowo_na_przekatnej:='Macierz nie jest kwadratowa';
+    exit;
+  end;
+  s:='';
+  for i:=1 to ik do
+  begin
+    s:=s+a[i,i];
+  end;
+  slowo_na_przekatnej:=s;
+end;
+
+function czy_litera(znak:char):boolean;
+begin
+  if (ord(znak)>=ord('A')) and (ord(znak)<=ord('Z'))
+      or (ord(znak)>=ord('a')) and (ord(znak)<=ord('z')) then
+    czy_litera:=true
+  else
+    czy_litera:=false;
+end;
+
+function ile_nieliter(var A:macierz;ik:integer;iw:integer):integer;
+var i,j,licz:integer;
+begin
+  licz:=0;
+  for i:=1 to iw do
+    for j:=1 to ik do
+    begin
+      if not czy_litera(A[i,j]) then
+        licz:=licz+1;
+    end;
+  ile_nieliter:=licz;
+end;
+
+function najdluzszy_wiersz(var A:macierz;ik:integer;iw:integer):integer;
+var i,j,licz,m:integer;
+    t:array [1..Nmax] of integer;
+begin
+  for i:=1 to iw do
+  begin
+    t[i]:=0;
+    licz:=0;
+    for j:=1 to ik do
+      if czy_litera(A[i,j]) then
+      begin
+        licz:=licz+1;
+        if(licz>t[i]) then
+          t[i]:=licz;
+      end
+      else
+        licz:=0;
+  end;
+  m:=1;
+  for i:=2 to iw do
+    if t[i]>t[m] then
+      m:=i;
+  najdluzszy_wiersz:=m;
+
+end;
+
+function czy_samogloska(znak:char):boolean;
+begin
+  if(znak='a') or (znak='e') or (znak='i') or (znak='o') or (znak='u') or (znak='y') or
+    (znak='A') or (znak='E') or (znak='I') or (znak='O') or (znak='U') or (znak='Y') then
+    czy_samogloska:=true
+  else
+    czy_samogloska:=false;
+end;
+
+function ile_samoglosek(var A:macierz;ik:integer;iw:integer):integer;
+var i,j,licz:integer;
+begin
+  licz:=0;
+  for i:=1 to iw do
+    for j:=1 to ik do
+    begin
+      if czy_samogloska(a[i,j]) then
+        licz:=licz+1;
+    end;
+  ile_samoglosek:=licz;
+end;
+
+procedure menu();
+begin
+   writeln;
+   Writeln('0 - Wylosuj macierz');
+   Writeln('1 - Zapisz macierz do pliku');
+   Writeln('2 - Odczytaj macierz z pliku');
+   Writeln('3 - Policz  sume cyfr z macierzy');
+   Writeln('4 - Odczytaj slowo na glownej przekatenj (macierz musi byc kwadratowa)');
+   Writeln('5 - Policz ile nieliter jest w macierzy ');
+   Writeln('6 - Wyswietl numer wiersza w ktorym jest najdluzszy ciag zlozony z liter');
+   Writeln('7 - Policz samogloski w macierzy');
+   Writeln('8 - Zmien wymiary macierzy');
+   Writeln('9 - Zamiknij program');
+   writeln;
+end;
+
+var a:macierz;
+    o:integer;
+    M,N:integer;
+    nazwa:string;
+begin
+  N:=Nmax;
+  M:=Mmax;
+  Wylosuj(a,M,N);
+  Wyswietl(a,M,N);
+  menu();
+  while true do
+  begin
+    readln(o);
+    case o of
+    0:begin
+          clrscr;
+          wylosuj(a,M,N);
+          Wyswietl(a,M,N);
+          menu();
+        end;
+    1:begin
+          Write('Podaj nazwe pliku: ');
+          repeat
+          readln(nazwa);
+          until nazwa<>'';
+          ZapiszDoPliku(a,M,N,nazwa);
+          clrscr;
+          Wyswietl(a,M,N);
+          menu();
+        end;
+    2:begin
+          Write('Podaj nazwe pliku: ');
+          repeat
+          readln(nazwa);
+          until nazwa<>'';
+          OdczytajZPliku(a,M,N,nazwa);
+          clrscr;
+          Wyswietl(a,M,N);
+          menu();
+        end;
+    3:begin
+          Writeln('Suma cyfr z macierzy wynosi ',sumuj(a,M,N));
+          writeln('Nacisnij dowolny klawisz');
+          readln;
+          clrscr;
+          Wyswietl(a,M,N);
+          menu();
+        end;
+    4:begin
+          if(M=N) then
+            writeln('Slowo na glownej przekatnej macierzy to ',slowo_na_przekatnej(A,M,N))
+          else
+            writeln(slowo_na_przekatnej(A,M,N));
+          writeln('Nacisnij dowolny klawisz');
+          readln;
+          clrscr;
+          Wyswietl(a,M,N);
+          menu();
+        end;
+    5:begin
+          Writeln('W macierzy jest ',ile_nieliter(A,M,N),' nieliter');
+          writeln('Nacisnij dowolny klawisz');
+          readln;
+          clrscr;
+          Wyswietl(a,M,N);
+          menu();
+        end;
+    6:begin
+          Writeln('Ten numer wiersza to ',najdluzszy_wiersz(A,M,N));
+          writeln('Nacisnij dowolny klawisz');
+          readln;
+          clrscr;
+          Wyswietl(a,M,N);
+          menu();
+        end;
+    7:begin
+          Writeln('Ilosc samoglosek w macierzy to ',ile_samoglosek(A,M,N));
+          writeln('Nacisnij dowolny klawisz');
+          readln;
+          clrscr;
+          Wyswietl(a,M,N);
+          menu();
+        end;
+    8:begin
+          repeat
+          begin
+            Write('Podaj ilosc kolumn (max 39): ');
+            readln(M);
+            Write('Podaj ilosc wierszy (max 30): ');
+            readln(N);
+          end;
+          until(N<=Nmax) and (M<=Mmax);
+          wylosuj(A,M,N);
+          clrscr;
+          Wyswietl(a,M,N);
+          menu();
+        end;
+    9:break;
+
+    end;
+  end;
+end.
